@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/WidgetComponent.h"
+#include "DesignPatterns/Player/InteractionSystemComponent/InteractableComponent.h"
 #include "GameFramework/Actor.h"
 #include "BaseLootChest.generated.h"
 
@@ -10,17 +12,30 @@ UCLASS()
 class DESIGNPATTERNS_API ABaseLootChest : public AActor
 {
 	GENERATED_BODY()
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly)
+	UStaticMeshComponent* LootChestMesh;
+	
+	UPROPERTY(EditDefaultsOnly)
+	UInteractableComponent* InteractableComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	UWidgetComponent* WidgetComp;
 	
 public:	
 	// Sets default values for this actor's properties
 	ABaseLootChest();
 
-protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
+protected:
+	UFUNCTION()
+	void OnBeginHover();
+	UFUNCTION()
+	void OnEndHover();
+	UFUNCTION()
+	void OnInteract();
 };

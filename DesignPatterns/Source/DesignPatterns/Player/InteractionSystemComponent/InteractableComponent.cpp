@@ -3,6 +3,8 @@
 
 #include "InteractableComponent.h"
 
+DEFINE_LOG_CATEGORY(LogInteraction);
+
 // Sets default values for this component's properties
 UInteractableComponent::UInteractableComponent()
 {
@@ -12,12 +14,40 @@ UInteractableComponent::UInteractableComponent()
 
 }
 
-void UInteractableComponent::BeginHover_Implementation()
+void UInteractableComponent::BeginHover() const
 {
+	if (OnBeginHoverEvent.IsBound())
+	{
+		OnBeginHoverEvent.Execute();
+	}
+	else
+	{
+		UE_LOG(LogInteraction, Error, TEXT("BeginHover is not bound"));
+	}
 }
 
-void UInteractableComponent::EndHover_Implementation()
+void UInteractableComponent::EndHover() const
 {
+	if (OnEndHoverEvent.IsBound())
+	{
+		OnEndHoverEvent.Execute();
+	}
+	else
+	{
+		UE_LOG(LogInteraction, Error, TEXT("EndHover is not bound"));
+	}
+}
+
+void UInteractableComponent::Interact() const
+{
+	if (OnInteractEvent.IsBound())
+	{
+		OnInteractEvent.Execute();
+	}
+	else
+	{
+		UE_LOG(LogInteraction, Error, TEXT("Interact is not bound"));
+	}
 }
 
 

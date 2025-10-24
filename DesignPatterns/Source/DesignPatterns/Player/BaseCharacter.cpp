@@ -12,6 +12,14 @@ ABaseCharacter::ABaseCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(FName("CameraComp"));
+	CameraComp->SetupAttachment(GetMesh());
+	CameraComp->SetRelativeLocationAndRotation(FVector(-2.8f, 5.89f, 0.0f), FRotator(0.0f, 90.0f, -90.0f));
+	CameraComp->bUsePawnControlRotation = true;
+	CameraComp->bEnableFirstPersonFieldOfView = true;
+	CameraComp->bEnableFirstPersonScale = true;
+	CameraComp->FirstPersonFieldOfView = 70.0f;
+	CameraComp->FirstPersonScale = 0.6f;
+	
 	InteractionComp = CreateDefaultSubobject<UInteractionComponent>(FName("InteractionComp"));
 	
 }

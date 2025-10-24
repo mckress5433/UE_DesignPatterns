@@ -15,6 +15,14 @@ UInteractionComponent::UInteractionComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+void UInteractionComponent::TryInteract()
+{
+	if (InteractableComp != nullptr)
+	{
+		InteractableComp->Interact();
+	}
+}
+
 
 // Called when the game starts
 void UInteractionComponent::BeginPlay()
@@ -27,15 +35,13 @@ void UInteractionComponent::BeginPlay()
 
 		if (UWorld* world = character->GetWorld(); world != nullptr)
 		{
-			world->GetTimerManager().SetTimer(InteractionTimerHandle, this, &UInteractionComponent::InteractionTick, 0.03f);
+			world->GetTimerManager().SetTimer(InteractionTimerHandle, this, &UInteractionComponent::InteractionTick, 0.03f, true);
 		}
 	}
 }
 
 void UInteractionComponent::InteractionTick()
 {
-	InteractableComp.Reset();
-	
 	TWeakObjectPtr<UInteractableComponent> foundInteractable = CheckForInteractable();
 
 	if (foundInteractable.Get() != InteractableComp.Get())
@@ -60,7 +66,7 @@ TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractab
 			FVector traceEnd = cameraLocation + (CameraForwardVector * InteractionDist);
 			TArray<AActor*> IgnoredActors;
 
-			int debugFlag = GInteractionDebugVariable.GetValueOnAnyThread(false);
+			EDrawDebugTrace::Type debugFlag = static_cast<EDrawDebugTrace::Type>(GInteractionDebugVariable.GetValueOnAnyThread(false));
 
 			FHitResult lineTraceResult;
 			UKismetSystemLibrary::LineTraceSingleByProfile(
@@ -70,7 +76,7 @@ TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractab
 				TEXT("Visibility"),
 				true,
 				IgnoredActors,
-				static_cast<EDrawDebugTrace::Type>(debugFlag),
+				debugFlag,
 				lineTraceResult,
 				true,
 				FColor::Cyan,
@@ -102,7 +108,7 @@ TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractab
 				TEXT("Visibility"),
 				true,
 				IgnoredActors,
-				static_cast<EDrawDebugTrace::Type>(debugFlag),
+				debugFlag,
 				OutHits,
 				true,
 				FColor::White,

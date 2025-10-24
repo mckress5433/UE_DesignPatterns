@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "GlobalConsoleVariables.h"
 
 TAutoConsoleVariable<int> GInteractionDebugVariable(
 	TEXT("DP.InteractionDebugVariable"),
