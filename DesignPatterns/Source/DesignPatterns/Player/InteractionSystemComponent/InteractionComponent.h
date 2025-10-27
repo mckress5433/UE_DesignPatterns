@@ -19,21 +19,22 @@ class DESIGNPATTERNS_API UInteractionComponent : public UActorComponent
 	FTimerHandle InteractionTimerHandle;
 
 	TWeakObjectPtr<UInteractableComponent> InteractableComp;
+	TWeakObjectPtr<UPlayerHud> PlayerHud;
 
 	UPROPERTY(EditDefaultsOnly)
 	float InteractionDist = 100.0f;
 	UPROPERTY(EditDefaultsOnly)
 	float InteractionRadius = 10.0f;
 	
-public:	
+public:
+	// Called by the base character
+	void StartTimer();
 	// Sets default values for this component's properties
 	UInteractionComponent();
 
 	void TryInteract();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
 
 	void InteractionTick();
 	TWeakObjectPtr<UInteractableComponent> CheckForInteractable();

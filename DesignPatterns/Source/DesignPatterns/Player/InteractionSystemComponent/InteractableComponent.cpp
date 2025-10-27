@@ -22,7 +22,7 @@ void UInteractableComponent::BeginHover() const
 	}
 	else
 	{
-		UE_LOG(LogInteraction, Error, TEXT("BeginHover is not bound"));
+		UE_LOG(LogInteraction, Warning, TEXT("BeginHover is not bound"));
 	}
 }
 
@@ -34,19 +34,21 @@ void UInteractableComponent::EndHover() const
 	}
 	else
 	{
-		UE_LOG(LogInteraction, Error, TEXT("EndHover is not bound"));
+		UE_LOG(LogInteraction, Warning, TEXT("EndHover is not bound"));
 	}
 }
 
-void UInteractableComponent::Interact() const
+void UInteractableComponent::Interact()
 {
+	bHasBeenInteracted = true;
+	
 	if (OnInteractEvent.IsBound())
 	{
 		OnInteractEvent.Execute();
 	}
 	else
 	{
-		UE_LOG(LogInteraction, Error, TEXT("Interact is not bound"));
+		UE_LOG(LogInteraction, Warning, TEXT("Interact is not bound"));
 	}
 }
 

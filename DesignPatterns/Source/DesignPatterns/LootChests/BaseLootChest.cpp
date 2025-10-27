@@ -14,16 +14,18 @@ ABaseLootChest::ABaseLootChest()
 
 	LootChestMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LootChestMesh"));
 	RootComponent = LootChestMesh;
+
+	LidMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LidMesh"));
+	LidMesh->SetupAttachment(LootChestMesh);
 	
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractionComponent"));
-	WidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidgetComponent"));
 }
 
 void ABaseLootChest::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InteractableComp->OnBeginHoverEvent.BindUFunction(this, FName("OnBeginHover"));
+	//InteractableComp->OnBeginHoverEvent.BindUFunction(this, FName("OnBeginHover"));
 	InteractableComp->OnEndHoverEvent.BindUFunction(this, FName("OnEndHover"));
 	InteractableComp->OnInteractEvent.BindUFunction(this, FName("OnInteract"));
 }
@@ -31,25 +33,22 @@ void ABaseLootChest::BeginPlay()
 void ABaseLootChest::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-	InteractableComp->OnBeginHoverEvent.Unbind();
+	//InteractableComp->OnBeginHoverEvent.Unbind();
 	InteractableComp->OnEndHoverEvent.Unbind();
 	InteractableComp->OnInteractEvent.Unbind();
 }
 
-void ABaseLootChest::OnBeginHover()
+void ABaseLootChest::OnBeginHover() const
 {
-	//WidgetComp->SetVisibility(true);
 }
 
-void ABaseLootChest::OnEndHover()
+void ABaseLootChest::OnEndHover() const
 {
-	//WidgetComp->SetVisibility(false);
 }
 
-void ABaseLootChest::OnInteract()
+void ABaseLootChest::OnInteract_Implementation()
 {
-
-	GEngine->AddOnScreenDebugMessage(0, 20.0f, FColor::Magenta, FString::Printf(TEXT("I Interact !")));
+	
 }
 
 

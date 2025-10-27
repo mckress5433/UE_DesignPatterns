@@ -3,6 +3,7 @@
 
 #include "BaseCharacter.h"
 #include "EnhancedInputComponent.h"
+#include "Components/WidgetComponent.h"
 
 
 // Sets default values
@@ -21,14 +22,23 @@ ABaseCharacter::ABaseCharacter()
 	CameraComp->FirstPersonScale = 0.6f;
 	
 	InteractionComp = CreateDefaultSubobject<UInteractionComponent>(FName("InteractionComp"));
-	
 }
 
 // Called when the game starts or when spawned
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	if (PlayerHudClass != nullptr)
+	{
+		PlayerHud = CreateWidget<UPlayerHud>(GetWorld(), PlayerHudClass);
+		if (PlayerHud != nullptr)
+		{
+			PlayerHud->AddToViewport();
+		}
+	}
+
+	InteractionComp->StartTimer();
 }
 
 void ABaseCharacter::MoveInput(const FInputActionValue& Value)
@@ -48,6 +58,14 @@ void ABaseCharacter::LookInput(const FInputActionValue& Value)
 
 	// pass the axis values to the aim input
 	DoAim(LookAxisVector.X, LookAxisVector.Y);
+}
+
+void ABaseCharacter::InteractInput(const FInputActionValue& Value)
+{
+	if (GetController() != nullptr)
+	{
+		DoInteract();
+	}
 }
 
 void ABaseCharacter::DoAim(float Yaw, float Pitch)
@@ -70,6 +88,11 @@ void ABaseCharacter::DoMove(float Right, float Forward)
 	}
 }
 
+void ABaseCharacter::DoInteract() const
+{
+	InteractionComp->TryInteract();
+}
+
 // Called every frame
 void ABaseCharacter::Tick(float DeltaTime)
 {
@@ -90,6 +113,9 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 		// Looking/Aiming
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABaseCharacter::LookInput);
+
+		// Interacting
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ABaseCharacter::InteractInput);
 	}
 	else
 	{

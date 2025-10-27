@@ -25,13 +25,12 @@ void UInteractionComponent::TryInteract()
 
 
 // Called when the game starts
-void UInteractionComponent::BeginPlay()
+void UInteractionComponent::StartTimer()
 {
-	Super::BeginPlay();
-
 	if (auto character = static_cast<ABaseCharacter*>(GetOwner()); character != nullptr)
 	{
 		CameraComp = MakeWeakObjectPtr<UCameraComponent>(character->GetCameraComponent());
+		PlayerHud = MakeWeakObjectPtr<UPlayerHud>(character->GetPlayerHud());
 
 		if (UWorld* world = character->GetWorld(); world != nullptr)
 		{
@@ -44,13 +43,35 @@ void UInteractionComponent::InteractionTick()
 {
 	TWeakObjectPtr<UInteractableComponent> foundInteractable = CheckForInteractable();
 
-	if (foundInteractable.Get() != InteractableComp.Get())
+	if (foundInteractable.IsValid())
+	{
+		if (PlayerHud.IsValid())
+		{
+			PlayerHud->SetInteractionPromptVisibility(true);
+		}
+
+		bool bIsInteractableValid = InteractableComp.IsValid();
+		if (!bIsInteractableValid || foundInteractable.Get() != InteractableComp.Get())
+		{
+			if (bIsInteractableValid)
+			{
+				InteractableComp->EndHover();
+			}
+			foundInteractable->BeginHover();
+			InteractableComp = foundInteractable;
+		}
+	}
+	else if (InteractableComp.IsValid())
 	{
 		InteractableComp->EndHover();
-		foundInteractable->BeginHover();
-		
-		InteractableComp = foundInteractable;
+		InteractableComp.Reset();
+
+		if (PlayerHud.IsValid())
+		{
+			PlayerHud->SetInteractionPromptVisibility(false);
+		}
 	}
+	
 }
 
 TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractable()
@@ -65,6 +86,7 @@ TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractab
 			FVector CameraForwardVector = cameraPtr->GetForwardVector();
 			FVector traceEnd = cameraLocation + (CameraForwardVector * InteractionDist);
 			TArray<AActor*> IgnoredActors;
+			IgnoredActors.Add(GetOwner());
 
 			EDrawDebugTrace::Type debugFlag = static_cast<EDrawDebugTrace::Type>(GInteractionDebugVariable.GetValueOnAnyThread(false));
 
@@ -73,7 +95,7 @@ TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractab
 				world,
 				cameraLocation,
 				traceEnd,
-				TEXT("Visibility"),
+				TEXT("Interactable"),
 				true,
 				IgnoredActors,
 				debugFlag,
@@ -88,9 +110,12 @@ TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractab
 			{
 				if (AActor* hitActor = lineTraceResult.GetActor(); hitActor != nullptr)
 				{
-					if (auto interactableComp =	hitActor->GetComponentByClass<UInteractableComponent>(); interactableComp != nullptr)
+					if (auto interactableComp =	hitActor->FindComponentByClass<UInteractableComponent>(); interactableComp != nullptr)
 					{
-						return MakeWeakObjectPtr<UInteractableComponent>(interactableComp);
+						if (interactableComp->CanInteract())
+						{
+							return MakeWeakObjectPtr<UInteractableComponent>(interactableComp);
+						}
 					}
 				}
 			}
@@ -105,7 +130,7 @@ TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractab
 				cameraLocation,
 				traceEnd,
 				InteractionRadius,
-				TEXT("Visibility"),
+				TEXT("Interactable"),
 				true,
 				IgnoredActors,
 				debugFlag,
@@ -119,12 +144,15 @@ TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractab
 			{
 				if (AActor* hitActor = hitResult.GetActor(); hitActor != nullptr)
 				{
-					if (auto interactableComp = hitActor->GetComponentByClass<UInteractableComponent>(); interactableComp != nullptr)
+					if (auto interactableComp = hitActor->FindComponentByClass<UInteractableComponent>(); interactableComp != nullptr)
 					{
-						float distToHit = (hitResult.ImpactPoint - hitLocation).Length();
-						if (distToHit < shortestDist)
+						if (interactableComp->CanInteract())
 						{
-							foundInteractable = MakeWeakObjectPtr<UInteractableComponent>(interactableComp);
+							float distToHit = (hitResult.ImpactPoint - hitLocation).Length();
+							if (distToHit < shortestDist)
+							{
+								foundInteractable = MakeWeakObjectPtr<UInteractableComponent>(interactableComp);
+							}
 						}
 					}
 				}

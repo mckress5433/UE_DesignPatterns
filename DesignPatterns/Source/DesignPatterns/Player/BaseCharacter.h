@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
+#include "DesignPatterns/UI/PlayerHud.h"
 #include "GameFramework/Character.h"
 #include "InteractionSystemComponent/InteractionComponent.h"
 
@@ -23,6 +24,12 @@ class DESIGNPATTERNS_API ABaseCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly)
 	UInteractionComponent* InteractionComp;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UPlayerHud> PlayerHudClass;
+
+	UPROPERTY()
+	UPlayerHud* PlayerHud; 
+
 protected:
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, Category ="Input")
@@ -32,11 +39,16 @@ protected:
 	UPROPERTY(EditAnywhere, Category ="Input")
 	class UInputAction* LookAction;
 
+	/** Interaction Input Action */
+	UPROPERTY(EditAnywhere, Category ="Input")
+	class UInputAction* InteractAction;
+
 public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
 
 	UCameraComponent* GetCameraComponent() const { return CameraComp; }
+	UPlayerHud* GetPlayerHud() const { return PlayerHud; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -46,8 +58,13 @@ protected:
 
 	/** Called from Input Actions for looking input */
 	void LookInput(const FInputActionValue& Value);
+
+	/** Called from Input Actions for interacting */
+	void InteractInput(const FInputActionValue& Value);
+	
 	void DoAim(float Yaw, float Pitch);
 	void DoMove(float Right, float Forward);
+	void DoInteract() const;
 
 	/** Set up input action bindings */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;

@@ -29,7 +29,7 @@ public:
 	// Triggered when InteractionComponent::InteractableComp is no longer set to this object
 	void EndHover() const;
 
-	void Interact() const;
+	void Interact();
 
 	UPROPERTY()
 	FOnBeginHover OnBeginHoverEvent;
@@ -39,4 +39,12 @@ public:
 
 	UPROPERTY()
 	FOnInteract OnInteractEvent;
+
+	bool CanInteract() const { return !bCanIteractOnce || (bCanIteractOnce && !bHasBeenInteracted);};
+
+protected:
+	// If true the player can only interact with the object once
+	UPROPERTY(EditDefaultsOnly)
+	bool bCanIteractOnce = false;
+	bool bHasBeenInteracted = false;
 };

@@ -2,7 +2,7 @@
 
 #include "GlobalConsoleVariables.h"
 
-TAutoConsoleVariable<int> GInteractionDebugVariable(
+inline TAutoConsoleVariable<int> GInteractionDebugVariable(
 	TEXT("DP.InteractionDebugVariable"),
 	0,
 	TEXT("Controls the display of interactable debug lines. \n")

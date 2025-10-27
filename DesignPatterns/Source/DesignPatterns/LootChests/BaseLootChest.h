@@ -15,14 +15,13 @@ class DESIGNPATTERNS_API ABaseLootChest : public AActor
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMeshComponent* LootChestMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* LidMesh;
 	
 	UPROPERTY(EditDefaultsOnly)
 	UInteractableComponent* InteractableComp;
-
-	UPROPERTY(EditDefaultsOnly)
-	UWidgetComponent* WidgetComp;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -33,9 +32,9 @@ public:
 
 protected:
 	UFUNCTION()
-	void OnBeginHover();
+	void OnBeginHover() const;
 	UFUNCTION()
-	void OnEndHover();
-	UFUNCTION()
+	void OnEndHover() const;
+	UFUNCTION(BlueprintNativeEvent)
 	void OnInteract();
 };
