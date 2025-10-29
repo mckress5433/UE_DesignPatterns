@@ -21,10 +21,14 @@ class DESIGNPATTERNS_API UInteractionComponent : public UActorComponent
 	TWeakObjectPtr<UInteractableComponent> InteractableComp;
 	TWeakObjectPtr<UPlayerHud> PlayerHud;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "InteractionSystem")
 	float InteractionDist = 100.0f;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "InteractionSystem")
 	float InteractionRadius = 10.0f;
+	// In terms of fps
+	UPROPERTY(EditDefaultsOnly, Category = "InteractionSystem")
+	float InteractionTickSpeed = 30.0f;
+	float InteractionTickTime = 0.03f;
 	
 public:
 	// Called by the base character

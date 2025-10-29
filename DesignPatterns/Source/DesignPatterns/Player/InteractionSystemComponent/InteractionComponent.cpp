@@ -3,6 +3,8 @@
 
 #include "InteractionComponent.h"
 
+#include "KismetTraceUtils.h"
+#include "DesignPatterns/DesignPatterns.h"
 #include "DesignPatterns/Global/GlobalConsoleVariables.h"
 #include "DesignPatterns/Player/BaseCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -34,7 +36,8 @@ void UInteractionComponent::StartTimer()
 
 		if (UWorld* world = character->GetWorld(); world != nullptr)
 		{
-			world->GetTimerManager().SetTimer(InteractionTimerHandle, this, &UInteractionComponent::InteractionTick, 0.03f, true);
+			InteractionTickTime = 1/InteractionTickSpeed;
+			world->GetTimerManager().SetTimer(InteractionTimerHandle, this, &UInteractionComponent::InteractionTick, InteractionTickTime, true);
 		}
 	}
 }
@@ -89,21 +92,32 @@ TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractab
 			IgnoredActors.Add(GetOwner());
 
 			EDrawDebugTrace::Type debugFlag = static_cast<EDrawDebugTrace::Type>(GInteractionDebugVariable.GetValueOnAnyThread(false));
-
+			FCollisionQueryParams CollisionQueryParams;
+			CollisionQueryParams.AddIgnoredActors(IgnoredActors);
+			
 			FHitResult lineTraceResult;
-			UKismetSystemLibrary::LineTraceSingleByProfile(
-				world,
+			
+			world->LineTraceSingleByChannel(
+				lineTraceResult,
 				cameraLocation,
 				traceEnd,
-				TEXT("Interactable"),
-				true,
-				IgnoredActors,
-				debugFlag,
-				lineTraceResult,
-				true,
-				FColor::Cyan,
-				FLinearColor::Red,
-				0.03f);
+				ECC_Interactable,
+				CollisionQueryParams
+				);
+
+			if (debugFlag != EDrawDebugTrace::None)
+			{
+				DrawDebugLineTraceSingle(
+					world,
+					cameraLocation,
+					traceEnd,
+					debugFlag,
+					lineTraceResult.bBlockingHit,
+					lineTraceResult,
+					FColor::Green,
+					FColor::Orange,
+					InteractionTickTime);
+			}
 
 			// If we hit an interactable actor with the line trace then we are done here
 			if (lineTraceResult.bBlockingHit)
@@ -121,27 +135,29 @@ TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractab
 			}
 
 			// Otherwise we need consider the surrounding area
-			FVector hitLocation = lineTraceResult.ImpactPoint;
+			FVector hitLocation = lineTraceResult.bBlockingHit ? lineTraceResult.ImpactPoint : traceEnd;
 			float shortestDist = FMath::Sqrt(FMath::Square(InteractionRadius) + FMath::Square(InteractionDist));
-			TArray<FHitResult> OutHits;
-			
-			UKismetSystemLibrary::SphereTraceMultiByProfile(
-				world,
+			TArray<FHitResult> outHits;
+
+			world->SweepMultiByChannel(
+				outHits,
 				cameraLocation,
 				traceEnd,
-				InteractionRadius,
-				TEXT("Interactable"),
-				true,
-				IgnoredActors,
-				debugFlag,
-				OutHits,
-				true,
-				FColor::White,
-				FLinearColor::Green,
-				0.03f);
+				FQuat::Identity,
+				ECC_Interactable,
+				FCollisionShape::MakeSphere(InteractionRadius),
+				CollisionQueryParams
+				);
 
-			for (FHitResult& hitResult : OutHits)
+			bool bHit = false;
+			
+			for (FHitResult& hitResult : outHits)
 			{
+				if (hitResult.bBlockingHit)
+				{
+					bHit = true;
+				}
+				
 				if (AActor* hitActor = hitResult.GetActor(); hitActor != nullptr)
 				{
 					if (auto interactableComp = hitActor->FindComponentByClass<UInteractableComponent>(); interactableComp != nullptr)
@@ -156,6 +172,21 @@ TWeakObjectPtr<UInteractableComponent> UInteractionComponent::CheckForInteractab
 						}
 					}
 				}
+			}
+
+			if (debugFlag != EDrawDebugTrace::None)
+			{
+				DrawDebugSphereTraceMulti(
+					world,
+					cameraLocation,
+					traceEnd,
+					InteractionRadius,
+					debugFlag,
+					bHit,
+					outHits,
+					FColor::Cyan,
+					FColor::Red,
+					InteractionTickTime);
 			}
 		}
 	}

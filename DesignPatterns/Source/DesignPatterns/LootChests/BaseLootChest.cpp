@@ -25,7 +25,7 @@ void ABaseLootChest::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//InteractableComp->OnBeginHoverEvent.BindUFunction(this, FName("OnBeginHover"));
+	InteractableComp->OnBeginHoverEvent.BindUFunction(this, FName("OnBeginHover"));
 	InteractableComp->OnEndHoverEvent.BindUFunction(this, FName("OnEndHover"));
 	InteractableComp->OnInteractEvent.BindUFunction(this, FName("OnInteract"));
 }
@@ -33,7 +33,7 @@ void ABaseLootChest::BeginPlay()
 void ABaseLootChest::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-	//InteractableComp->OnBeginHoverEvent.Unbind();
+	InteractableComp->OnBeginHoverEvent.Unbind();
 	InteractableComp->OnEndHoverEvent.Unbind();
 	InteractableComp->OnInteractEvent.Unbind();
 }
