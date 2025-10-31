@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DesignPatterns/Global/GlobalStructs.h"
+#include "DesignPatterns/Player/InteractionSystemComponent/InteractableComponent.h"
 #include "GameFramework/Actor.h"
 #include "BaseSword.generated.h"
 
@@ -12,17 +13,20 @@ class DESIGNPATTERNS_API ABaseSword : public AActor
 {
 	GENERATED_BODY()
 	
-public:
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+
+	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* SM_Blade;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* SM_Crossguard;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* SM_Hilt;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* SM_Pommel;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(EditDefaultsOnly)
+	UInteractableComponent* InteractableComponent;
+
+	UPROPERTY(VisibleAnywhere)
 	FSwordInfo SwordInfo;
 
 
@@ -33,7 +37,9 @@ protected:
 public:
 	// Sets default values for this actor's properties
 	ABaseSword();
-	ABaseSword(const FSwordInfo& swInfo);
+	
+	void AssembleSword(const FSwordInfo& swInfo);
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

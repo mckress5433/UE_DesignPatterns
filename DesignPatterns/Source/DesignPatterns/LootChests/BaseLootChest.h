@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/WidgetComponent.h"
 #include "DesignPatterns/Player/InteractionSystemComponent/InteractableComponent.h"
 #include "GameFramework/Actor.h"
+#include "DesignPatterns/Weapons/BaseSword.h"
 #include "BaseLootChest.generated.h"
 
 UCLASS()
@@ -22,6 +22,12 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	UInteractableComponent* InteractableComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	USceneComponent* ItemSpawnLocation;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ABaseSword> SwordClass;
 	
 public:	
 	// Sets default values for this actor's properties

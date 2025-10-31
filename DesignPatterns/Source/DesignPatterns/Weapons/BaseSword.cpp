@@ -3,16 +3,36 @@
 
 #include "BaseSword.h"
 
+#include "DesignPatterns/DesignPatterns.h"
+
 // Sets default values
 ABaseSword::ABaseSword()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
+	SM_Hilt = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Hilt"));
+	RootComponent = SM_Hilt;
+	SM_Hilt->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	
+	SM_Blade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Blade"));
+	SM_Blade->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+	SM_Blade->SetupAttachment(SM_Hilt);
+	
+	SM_Crossguard = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Crossguard"));
+	SM_Crossguard->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+	SM_Crossguard->SetupAttachment(SM_Hilt);
+	
+	SM_Pommel = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Pommel"));
+	SM_Pommel->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+	SM_Pommel->SetupAttachment(SM_Hilt);
+
+	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
 }
 
-ABaseSword::ABaseSword(const FSwordInfo& swInfo)
+void ABaseSword::AssembleSword(const FSwordInfo& swInfo)
 {
+	SwordInfo = swInfo;
 	SM_Blade->SetStaticMesh(swInfo.BladeMesh);
 	SM_Crossguard->SetStaticMesh(swInfo.CrossguardMesh);
 	SM_Hilt->SetStaticMesh(swInfo.HiltMesh);

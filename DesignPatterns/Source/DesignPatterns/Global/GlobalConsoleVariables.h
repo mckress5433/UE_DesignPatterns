@@ -9,9 +9,3 @@ inline TAutoConsoleVariable<int> GInteractionDebugVariable(
 	TEXT("0 = None, 1 = ForOneFrame, 2 = ForDuration, 3 = Persistent")
 );
 
-class GlobalConsoleVariables
-{
-	
-public:
-	
-};

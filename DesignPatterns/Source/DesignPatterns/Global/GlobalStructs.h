@@ -17,6 +17,8 @@ struct FSwordInfo
 	UStaticMesh* PommelMesh;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	FString SwordName;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	float Damage;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	float Defense;
