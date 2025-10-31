@@ -22,7 +22,7 @@ ABaseLootChest::ABaseLootChest()
 	
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractionComponent"));
 
-	ItemSpawnLocation = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemSpawnLocation"));
+	ItemSpawnLocation = CreateDefaultSubobject<USceneComponent>(TEXT("ItemSpawnLocation"));
 	ItemSpawnLocation->SetupAttachment(LootChestMesh);
 }
 

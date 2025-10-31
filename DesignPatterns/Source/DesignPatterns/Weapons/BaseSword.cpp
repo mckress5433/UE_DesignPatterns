@@ -4,6 +4,8 @@
 #include "BaseSword.h"
 
 #include "DesignPatterns/DesignPatterns.h"
+#include "DesignPatterns/Player/BaseCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ABaseSword::ABaseSword()
@@ -26,8 +28,16 @@ ABaseSword::ABaseSword()
 	SM_Pommel = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Pommel"));
 	SM_Pommel->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	SM_Pommel->SetupAttachment(SM_Hilt);
-
+	
 	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
+	
+	StatsWidgetRoot = CreateDefaultSubobject<USceneComponent>(TEXT("StatsWidgetRoot"));
+	StatsWidgetRoot->SetupAttachment(SM_Hilt);
+
+	WidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComp"));
+	WidgetComp->SetHiddenInGame(true);
+	WidgetComp->SetupAttachment(StatsWidgetRoot);
+	
 }
 
 void ABaseSword::AssembleSword(const FSwordInfo& swInfo)
@@ -43,13 +53,62 @@ void ABaseSword::AssembleSword(const FSwordInfo& swInfo)
 void ABaseSword::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (UWorld* world = GetWorld(); world != nullptr)
+	{
+		if (APlayerController* controller = UGameplayStatics::GetPlayerController(world, 0); controller != nullptr)
+		{
+			if (auto baseCharacter = Cast<ABaseCharacter>(controller->GetPawn()); baseCharacter != nullptr)
+			{
+				CameraComponent = baseCharacter->GetCameraComponent();
+			}
+		}
+	}
+	
+	InteractableComponent->OnBeginHoverEvent.BindUFunction(this, FName("OnBeginHover"));
+	InteractableComponent->OnEndHoverEvent.BindUFunction(this, FName("OnEndHover"));
+	InteractableComponent->OnInteractEvent.BindUFunction(this, FName("OnInteract"));
+}
+
+void ABaseSword::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	StatsWidgetPositionTimerHandle.Invalidate();
+	
+	InteractableComponent->OnBeginHoverEvent.Unbind();
+	InteractableComponent->OnEndHoverEvent.Unbind();
+	InteractableComponent->OnInteractEvent.Unbind();
+}
+
+void ABaseSword::OnBeginHover()
+{
+	//SwordStatsWidget->SetHiddenInGame(false);
+
+	if (UWorld* world = GetWorld(); world != nullptr)
+	{
+		StatWidgetPositionTickTime = 1/StatWidgetPositionTickSpeed;
+		world->GetTimerManager().SetTimer(StatsWidgetPositionTimerHandle, this, &ABaseSword::SetWidgetPositionTick, StatWidgetPositionTickTime, true);
+	}
+}
+
+void ABaseSword::OnEndHover()
+{
+	//SwordStatsWidget->SetHiddenInGame(true);
+	StatsWidgetPositionTimerHandle.Invalidate();
+}
+
+void ABaseSword::OnInteract_Implementation()
+{
 	
 }
 
-// Called every frame
-void ABaseSword::Tick(float DeltaTime)
+void ABaseSword::SetWidgetPositionTick()
 {
-	Super::Tick(DeltaTime);
+	FVector CameraLocation = CameraComponent->GetComponentLocation();
+	FVector StatsRootLocation = StatsWidgetRoot->GetComponentLocation();
 
+	FVector newWidgetLocation = FMath::Lerp(StatsRootLocation, CameraLocation, 0.75f);
+	WidgetComp->SetWorldLocation(newWidgetLocation);
 }
 
