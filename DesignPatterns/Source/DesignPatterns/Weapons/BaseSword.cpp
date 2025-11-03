@@ -30,14 +30,6 @@ ABaseSword::ABaseSword()
 	SM_Pommel->SetupAttachment(SM_Hilt);
 	
 	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
-	
-	StatsWidgetRoot = CreateDefaultSubobject<USceneComponent>(TEXT("StatsWidgetRoot"));
-	StatsWidgetRoot->SetupAttachment(SM_Hilt);
-
-	WidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComp"));
-	WidgetComp->SetHiddenInGame(true);
-	WidgetComp->SetupAttachment(StatsWidgetRoot);
-	
 }
 
 void ABaseSword::AssembleSword(const FSwordInfo& swInfo)
@@ -60,7 +52,7 @@ void ABaseSword::BeginPlay()
 		{
 			if (auto baseCharacter = Cast<ABaseCharacter>(controller->GetPawn()); baseCharacter != nullptr)
 			{
-				CameraComponent = baseCharacter->GetCameraComponent();
+				PlayerHud = baseCharacter->GetPlayerHud();
 			}
 		}
 	}
@@ -73,8 +65,6 @@ void ABaseSword::BeginPlay()
 void ABaseSword::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-
-	StatsWidgetPositionTimerHandle.Invalidate();
 	
 	InteractableComponent->OnBeginHoverEvent.Unbind();
 	InteractableComponent->OnEndHoverEvent.Unbind();
@@ -83,32 +73,16 @@ void ABaseSword::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ABaseSword::OnBeginHover()
 {
-	//SwordStatsWidget->SetHiddenInGame(false);
-
-	if (UWorld* world = GetWorld(); world != nullptr)
-	{
-		StatWidgetPositionTickTime = 1/StatWidgetPositionTickSpeed;
-		world->GetTimerManager().SetTimer(StatsWidgetPositionTimerHandle, this, &ABaseSword::SetWidgetPositionTick, StatWidgetPositionTickTime, true);
-	}
+	PlayerHud->SetWeaponInfoVisibility(true, SwordInfo);
 }
 
 void ABaseSword::OnEndHover()
 {
-	//SwordStatsWidget->SetHiddenInGame(true);
-	StatsWidgetPositionTimerHandle.Invalidate();
+	PlayerHud->SetWeaponInfoVisibility(false, SwordInfo);
 }
 
 void ABaseSword::OnInteract_Implementation()
 {
 	
-}
-
-void ABaseSword::SetWidgetPositionTick()
-{
-	FVector CameraLocation = CameraComponent->GetComponentLocation();
-	FVector StatsRootLocation = StatsWidgetRoot->GetComponentLocation();
-
-	FVector newWidgetLocation = FMath::Lerp(StatsRootLocation, CameraLocation, 0.75f);
-	WidgetComp->SetWorldLocation(newWidgetLocation);
 }
 

@@ -7,6 +7,7 @@
 #include "DesignPatterns/Player/InteractionSystemComponent/InteractableComponent.h"
 #include "GameFramework/Actor.h"
 #include "Components/WidgetComponent.h"
+#include "DesignPatterns/UI/PlayerHud.h"
 #include "BaseSword.generated.h"
 
 UCLASS()
@@ -27,22 +28,11 @@ class DESIGNPATTERNS_API ABaseSword : public AActor
 	UPROPERTY(EditDefaultsOnly)
 	UInteractableComponent* InteractableComponent;
 
-	UPROPERTY(EditDefaultsOnly)
-	USceneComponent* StatsWidgetRoot;
-	UPROPERTY(EditDefaultsOnly)
-	UWidgetComponent* WidgetComp;
-
 	UPROPERTY(VisibleAnywhere)
 	FSwordInfo SwordInfo;
 
 	UPROPERTY()
-	FTimerHandle StatsWidgetPositionTimerHandle;
-	UPROPERTY(EditDefaultsOnly)
-	float StatWidgetPositionTickSpeed = 30.0f;
-	float StatWidgetPositionTickTime = 0.0f;
-
-	UPROPERTY()
-	UCameraComponent* CameraComponent;
+	UPlayerHud* PlayerHud;
 
 protected:
 	// Called when the game starts or when spawned
@@ -56,9 +46,6 @@ protected:
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void OnInteract();
-
-	UFUNCTION()
-	void SetWidgetPositionTick();
 
 public:
 	// Sets default values for this actor's properties

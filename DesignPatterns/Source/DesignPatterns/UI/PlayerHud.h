@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "DesignPatterns/Global/GlobalStructs.h"
 #include "PlayerHud.generated.h"
 
 /**
@@ -18,5 +19,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void SetInteractionPromptVisibility(bool bIsVisible);
-	
+
+	UFUNCTION(BLueprintNativeEvent, BlueprintCallable)
+	void SetWeaponInfoVisibility(bool bIsVisible, FSwordInfo swordInfo);
 };

@@ -19,7 +19,7 @@ private:
 	// Returns a Random DataTable based on the sword part and race
 	UDataTable* GetDataTableForPartAndRace(ESwordPart Part, ERace Race);
 
-	// returns a random row from the data table
+	// returns a random row from the data tableRans
 	template<std::derived_from<FSwordPartTemplate> T>
 	T GetRandomRowFromTable(const UDataTable* DataTable);
 	
